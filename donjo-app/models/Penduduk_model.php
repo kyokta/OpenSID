@@ -1823,4 +1823,24 @@ class Penduduk_model extends MY_Model
 
         return (bool) (in_array($cek, array_column($tag_id_card, 'tag_id_card')));
     }
+
+    public function getAlamatUser($id)
+    {
+        $this->db
+            ->select('p.id_cluster, p.alamat_sekarang, c.dusun, c.rw, c.rt')
+            ->from('tweb_penduduk p')
+            ->join('tweb_wil_clusterdesa c', 'p.id_cluster = c.id', 'left')
+            ->where('p.id', $id);
+        $penduduk = $this->db->get()->row_array();
+        return $penduduk;
+    }
+
+    public function getGrupAkses($id){
+        $this->db
+        ->select('ug.nama')
+        ->from('user_grup ug')
+        ->where('ug.id', $id);
+        $grup = $this->db->get()->row_array();
+        return $grup;
+    }
 }

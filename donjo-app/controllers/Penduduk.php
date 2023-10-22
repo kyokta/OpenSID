@@ -73,6 +73,8 @@ class Penduduk extends Admin_Controller
         $data['p'] = $p;
         $data['o'] = $o;
 
+        $nama_user = $_SESSION['nama'];
+
         foreach ($this->_list_session as $list) {
             if (in_array($list, ['dusun', 'rw', 'rt'])) {
                 ${$list} = $this->session->{$list};
@@ -115,6 +117,42 @@ class Penduduk extends Admin_Controller
         $data['list_status_dasar']    = $this->referensi_model->list_data('tweb_status_dasar');
         $data['list_status_penduduk'] = $this->referensi_model->list_data('tweb_penduduk_status');
         $data['list_jenis_kelamin']   = $this->referensi_model->list_data('tweb_penduduk_sex');
+
+        // get group name of user login
+        $id_grup_akses = $_SESSION['grup'];
+        $grup_akses = $this->penduduk_model->getGrupAkses($id_grup_akses)['nama'];
+
+        if ($grup_akses == "Kader Dusun"){
+            $id_user = null;
+            foreach ($data['main'] as $item) {
+                if ($item['nama'] === $nama_user) {
+                    $id_user = $item['id'];
+                    break;
+                }
+            }
+    
+            // get filter data from alamat user login
+            $alamat_user = $this->penduduk_model->getAlamatUser($id_user);
+            $filter_dusun = $alamat_user['dusun'];
+            $filter_rw = $alamat_user['rw'];
+            $filter_rt = $alamat_user['rt'];
+    
+            $filter_data = array();
+    
+            // filtering data penduduk
+            foreach ($data['main'] as $item){
+                if (
+                    strtolower($item['dusun']) === strtolower($filter_dusun) &&
+                    $item['rw'] === $filter_rw &&
+                    $item['rt'] === $filter_rt
+                ) {
+                    $filter_data[] = $item;
+                }
+            }
+
+            $data['grup_akses'] = true;
+            $data['main'] = $filter_data;
+        }
 
         $this->render('sid/kependudukan/penduduk', $data);
     }
