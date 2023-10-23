@@ -45,7 +45,7 @@ class Rtm extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model(['rtm_model', 'wilayah_model', 'program_bantuan_model']);
+        $this->load->model(['rtm_model', 'wilayah_model', 'program_bantuan_model', 'penduduk_model']);
         $this->_set_page     = ['50', '100', '200'];
         $this->_list_session = ['status_dasar', 'cari', 'dusun', 'rw', 'rt', 'order_by', 'id_bos', 'kelas', 'judul_statistik', 'sex', 'bdt', 'penerima_bantuan']; // Session id_bos
         $this->modul_ini     = 2;
@@ -64,6 +64,7 @@ class Rtm extends Admin_Controller
 
     public function index($page = 1, $order_by = 0)
     {
+        $nama_user = $_SESSION['nama'];
         foreach ($this->_list_session as $list) {
             if (in_array($list, ['dusun', 'rw', 'rt'])) {
                 ${$list} = $this->session->{$list};
@@ -107,6 +108,48 @@ class Rtm extends Admin_Controller
         $data['keyword']          = $this->rtm_model->autocomplete();
         $data['list_dusun']       = $this->wilayah_model->list_dusun();
         $data['list_sex']         = $this->referensi_model->list_data('tweb_penduduk_sex');
+
+        // get group name of user login
+        $id_grup_akses = $_SESSION['grup'];
+        $grup_akses = $this->penduduk_model->getGrupAkses($id_grup_akses)['nama'];
+
+        /**
+         * Kondisi di bawah ini digunakan untuk memberikan sebuah kondisi apa bila user login memiliki grup akses kader rt
+         * parameter pada kondisi di bawah ini bersifat statis
+         */
+
+
+        if (strtolower($grup_akses) == "kader rt") {
+            $user_login = [];
+            foreach ($data['main'] as $item) {
+                if ($item['kepala_kk'] === $nama_user) {
+                    $user_login = $item;
+                    break;
+                }
+            }
+
+            // get filter data from alamat user login
+            $filter_dusun = $user_login['dusun'];
+            $filter_rw = $user_login['rw'];
+            $filter_rt = $user_login['rt'];
+
+            $filter_data = array();
+
+            // filtering data keluarga by alamat user login
+            foreach ($data['main'] as $item) {
+                if (
+                    strtolower($item['dusun']) === strtolower($filter_dusun) &&
+                    $item['rw'] === $filter_rw &&
+                    $item['rt'] === $filter_rt
+                ) {
+                    $filter_data[] = $item;
+                }
+            }
+
+            $data['grup_akses'] = true;
+            $data['main'] = $filter_data;
+            $data['paging']->num_rows = count($filter_data);
+        }
 
         $this->render('rtm/rtm', $data);
     }
@@ -392,7 +435,7 @@ class Rtm extends Admin_Controller
                     ->where('id', $program_id)
                     ->get('program')->row()
                     ->nama;
-                if (! in_array($nomor, [BELUM_MENGISI, TOTAL])) {
+                if (!in_array($nomor, [BELUM_MENGISI, TOTAL])) {
                     $this->session->status_dasar = null; // tampilkan semua peserta walaupun bukan hidup/aktif
                     $nomor                       = $program_id;
                 }

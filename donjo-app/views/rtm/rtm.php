@@ -114,6 +114,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 											<option value="<?= $data['id']?>" <?= selected($sex, $data['id']); ?>><?= set_ucwords($data['nama'])?></option>
 										<?php endforeach; ?>
 									</select>
+									<?php if (!$grup_akses) {?>
 									<select class="form-control input-sm " name="dusun" onchange="formAction('mainform','<?= site_url('rtm/dusun'); ?>')">
 										<option value="">Pilih <?= ucwords($this->setting->sebutan_dusun); ?></option>
 										<?php foreach ($list_dusun as $data): ?>
@@ -135,7 +136,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 												<option value="<?= $data['rt']?>" <?= selected($rt, $data['rt']); ?>><?= set_ucwords($data['rt']); ?></option>
 											<?php endforeach; ?>
 										</select>
-									<?php endif; ?>
+									<?php endif; } ?>
 								</div>
 								<div class="col-sm-4">
 									<div class="input-group input-group-sm pull-right">
@@ -188,10 +189,12 @@ defined('BASEPATH') || exit('No direct script access allowed');
 									</thead>
 									<tbody>
 										<?php if ($main): ?>
-											<?php foreach ($main as $key => $data): ?>
+											<?php 
+												$no = 1;
+												foreach ($main as $key => $data): ?>
 												<tr>
 													<td class="padat"><input type="checkbox" name="id_cb[]" value="<?= $data['no_kk']?>" /></td>
-													<td class="padat"><?= ($paging->offset + $key + 1); ?></td>
+													<td class="padat"><?= $no++; ?></td>
 													<td class="aksi">
 														<a href="<?= site_url("rtm/anggota/{$data['id']}"); ?>" class="btn bg-purple btn-flat btn-sm" title="Rincian Anggota Rumah Tangga"><i class="fa fa-list-ol"></i></a>
 														<?php if (can('u') && $data['status_dasar'] == 1): ?>

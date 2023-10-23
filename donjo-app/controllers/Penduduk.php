@@ -122,20 +122,23 @@ class Penduduk extends Admin_Controller
         $id_grup_akses = $_SESSION['grup'];
         $grup_akses = $this->penduduk_model->getGrupAkses($id_grup_akses)['nama'];
 
-        if ($grup_akses == "Kader Dusun"){
-            $id_user = null;
+        /**
+         * Kondisi di bawah ini digunakan untuk memberikan sebuah kondisi apa bila user login memiliki grup akses kader rt
+         * parameter pada kondisi di bawah ini bersifat statis
+         */
+        if (strtolower($grup_akses) == "kader rt"){
+            $user_login = [];
             foreach ($data['main'] as $item) {
                 if ($item['nama'] === $nama_user) {
-                    $id_user = $item['id'];
+                    $user_login = $item;
                     break;
                 }
             }
     
             // get filter data from alamat user login
-            $alamat_user = $this->penduduk_model->getAlamatUser($id_user);
-            $filter_dusun = $alamat_user['dusun'];
-            $filter_rw = $alamat_user['rw'];
-            $filter_rt = $alamat_user['rt'];
+            $filter_dusun = $user_login['dusun'];
+            $filter_rw = $user_login['rw'];
+            $filter_rt = $user_login['rt'];
     
             $filter_data = array();
     
@@ -152,6 +155,7 @@ class Penduduk extends Admin_Controller
 
             $data['grup_akses'] = true;
             $data['main'] = $filter_data;
+            $data['paging']->num_rows = count($filter_data);
         }
 
         $this->render('sid/kependudukan/penduduk', $data);

@@ -91,6 +91,7 @@
 										<option value="<?= $data['id']?>" <?= selected($sex, $data['id']); ?>><?= set_ucwords($data['nama'])?></option>
 									<?php endforeach; ?>
 								</select>
+								<?php if (!$grup_akses) {?>
 								<select class="form-control input-sm " name="dusun" onchange="formAction('mainform','<?= site_url('keluarga/dusun')?>')">
 									<option value="">Pilih <?= ucwords($this->setting->sebutan_dusun)?></option>
 									<?php foreach ($list_dusun as $data): ?>
@@ -112,7 +113,7 @@
 											<option value="<?= $data['rt']?>" <?= selected($rt, $data['rt']); ?>><?= set_ucwords($data['rt'])?></option>
 										<?php endforeach; ?>
 									</select>
-								<?php endif; ?>
+								<?php endif; } ?>
 							</div>
 							<div class="col-sm-3">
 								<div class="input-group input-group-sm pull-right">
@@ -149,10 +150,12 @@
 									</tr>
 								</thead>
 								<tbody>
-									<?php foreach ($main as $data): ?>
+									<?php 
+									$no = 1;
+									foreach ($main as $data): ?>
 										<tr <?= jecho(get_nokk($data['no_kk']), '0', 'class="danger"') ?>>
 											<td class="padat"><input type="checkbox" name="id_cb[]" value="<?= $data['id']?>" /></td>
-											<td class="padat"><?= $data['no']?></td>
+											<td class="padat"><?= $no++; ?></td>
 											<td class="aksi">
 												<a href="<?= site_url("keluarga/anggota/{$p}/{$o}/{$data['id']}")?>" class="btn bg-purple btn-flat btn-sm" title="Rincian Anggota Keluarga (KK)"><i class="fa fa-list-ol"></i></a>
 												<?php if ($this->CI->cek_hak_akses('u') && $data['status_dasar'] == 1): ?>

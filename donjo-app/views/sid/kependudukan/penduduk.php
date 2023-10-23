@@ -118,7 +118,9 @@
 												<option value="<?= $data['id']; ?>" <?= selected($sex, $data['id']); ?>><?= set_ucwords($data['nama']); ?></option>
 											<?php endforeach; ?>
 										</select>
-										<?php $this->load->view('global/filter_wilayah', ['form' => 'mainform']); ?>
+										<?php if (!$grup_akses) {
+											$this->load->view('global/filter_wilayah', ['form' => 'mainform']); 
+										} ?>
 									</div>
 									<div class="col-sm-3">
 										<div class="input-group input-group-sm pull-right">
@@ -163,10 +165,12 @@
 										</thead>
 										<tbody>
 											<?php if ($main): ?>
-												<?php foreach ($main as $key => $data): ?>
+												<?php 
+													$no = 1;
+													foreach ($main as $key => $data): ?>
 													<tr <?= jecho(get_nik($data['nik']), '0', 'class="danger"') ?>>
 														<td class="padat"><input type="checkbox" name="id_cb[]" value="<?= $data['id']; ?>" /></td>
-														<td class="padat"><?= ($key + $paging->offset + 1); ?></td>
+														<td class="padat"><?= $no++; ?></td>
 														<td class="aksi">
 															<div class="btn-group">
 																<button type="button" class="btn btn-social btn-flat btn-info btn-sm" data-toggle="dropdown"><i class='fa fa-arrow-circle-down'></i> Pilih Aksi</button>
